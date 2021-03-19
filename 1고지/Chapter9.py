@@ -9,7 +9,6 @@ def as_array(x):
         return np.array(x)
 class Variable:
     def __init__(self, data):
-        print(data)
         if data and not isinstance(data, np.ndarray):
             raise TypeError('{}은(는) 지원하지 않습니다.'.format(type(data)))
 
