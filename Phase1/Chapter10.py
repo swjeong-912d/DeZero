@@ -3,14 +3,11 @@
 # Press Shift+F10 to execute it or replace it with your code.
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import numpy as np
-import unittest
-
 
 def as_array(x):
     if np.isscalar(x):
-        return np.ndarray(x)
+        return np.array(x)
     return x
-
 
 class Variable:
     def __init__(self, data):
@@ -32,8 +29,6 @@ class Variable:
             x, y = f.input, f.output
             x.grad = f.backward(y.grad)
             f = x.creator
-
-
 
 class Function:
     def __call__(self, input):
@@ -63,8 +58,8 @@ class Square(Function):
         return gx
 
 def numerical_diff(f, x, eps = 1e-4):
-    x0 = Variable(x.data - eps)
-    x1 = Variable(x.data + eps)
+    x0 = Variable(as_array(x.data - eps))
+    x1 = Variable(as_array(x.data + eps))
     y0 = f(x0)
     y1 = f(x1)
     return (y1.data - y0.data) / (2 * eps)
@@ -99,11 +94,18 @@ def f(x):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    t = as_array(np.random.rand(1))
-    x = Variable(t)
-    y = square(x)
-    y.backward()
-    num_grad = numerical_diff(square, x)
+    print(type(np.array(1.0)))
+    print(type(np.array(1.0) * 1))
+    print(type(np.array([1.0])))
+    print(type(np.array([1.0]) * 1))
+    # 2번째가 float64로 바뀌는거 땜에 backward 에러가 뜸. 그걸 방지하기 위해서 as_array로 ouput을 감싸줌.
+    # Function class의 __call__에 사용
+
+    x = Variable(None)
+    x = Variable(np.array(1.0))
+    numerical_diff(Square(),x)
+    y = square(exp(square(x)))
+    assert y.creator.input.creator.input.creator.input == x
     #
     # y.grad = np.array(1.0)
     # b.grad = y.creator.backward(y.grad)
