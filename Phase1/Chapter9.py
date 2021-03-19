@@ -7,6 +7,7 @@ import numpy as np
 def as_array(x):
     if np.isscalar(x):
         return np.array(x)
+    return x
 class Variable:
     def __init__(self, data):
         if data and not isinstance(data, np.ndarray):
