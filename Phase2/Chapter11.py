@@ -31,18 +31,15 @@ class Variable:
             f = x.creator
 
 class Function():
-    def __call__(self, *inputs):
+    def __call__(self, inputs):
         xs = [x.data for x in inputs]
-        ys = self.forward(*xs)
-        if not isinstance(ys, tuple):
-            ys = (ys,)
+        ys = self.forward(xs)
         outputs = [Variable(as_array(y)) for y in ys]
         for output in outputs:
             output.set_creator(self)
         self.inputs = inputs
         self.outputs = outputs
-
-        return outputs if len(outputs) > 1 else outputs[0]
+        return outputs
 
     def forward(self, xs):
         raise NotImplementedError()
@@ -51,9 +48,10 @@ class Function():
         raise NotImplementedError()
 
 class Add(Function):
-    def forward(self, x0, x1):
+    def forward(self, xs):
+        x0, x1 = xs
         y = x0 + x1
-        return y
+        return (y,)
 class Square(Function):
     def forward(self, x):
         y = x ** 2
@@ -73,8 +71,7 @@ def numerical_diff(f, x, eps = 1e-4):
 
 def square(x):
     return Square()(x)
-def add(x0, x1):
-    return Add()(x0, x1)
+
 
 class Exp(Function):
     def forward(self, x):
@@ -102,8 +99,9 @@ def f(x):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    x0, x1 = Variable(np.array(1)), Variable(np.array(3))
-    y = add(x0,x1)
-    print (y.data)
+    xs = [Variable(np.array(1)), Variable(np.array(3))]
+    f = Add()
+    ys = f(xs)
+    print (ys[0].data)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
