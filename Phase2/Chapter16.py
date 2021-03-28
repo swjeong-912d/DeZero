@@ -28,12 +28,11 @@ class Variable:
         cnt = 0
         funcs = []
         # (variable gen, creator gen, creator input order, creator). tips by python documentation
-        heapq.heappush(funcs,(-self.generation, -self.generation, 0, self.creator))
+        heapq.heappush(funcs,(-self.generation, id(self), self.creator))
         while funcs:
             cnt += 1
-            vgen, cgen, order, f = heapq.heappop(funcs)
+            vgen, vid, f = heapq.heappop(funcs)
             print('----')
-            print(-vgen, -cgen, order)
             gys = [output.grad for output in f.outputs]
             gxs = f.backward(*gys) # backward of gys
             if not isinstance(gxs, tuple):
@@ -46,7 +45,8 @@ class Variable:
                 else:
                     x.grad = gx
                     if x.creator:
-                        heapq.heappush(funcs,(-x.generation, -f.generation, i, x.creator))
+                        heapq.heappush(funcs,(-x.generation, id(x), x.creator))
+            print(funcs)
 
 class Function():
     def __call__(self, *inputs):
@@ -124,15 +124,14 @@ def f(x):
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    x = Variable(np.array(3))
-    x2 = Variable(np.array(4))
-    y = square(x)
-    y2 = square(x2)
-    z = add(square(y),square(y)) # 2x^4
-    z2 = add(z,y2) # 2x^4+y^2
-    z3 = add(z2,y) # 2x^4+x^2+y^2 -> (8x^3+2x,2y)
-    z3.backward()
+    x0, x1 = Variable(np.array(3)), Variable(np.array(3))
+    y0 = square(x0)
+    y1 = square(x1)
+    y00 = square(y0)
+    y11 = square(y1)
+    z = add(square(x0),square(x0))
+    z.backward()
 
-    print(x.grad, x2.grad)
+    print(x0.grad)
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
